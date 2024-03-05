@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdbool.h>
+void parseE();
+void parseT();
+void parseF();
+char input[100];
+int position = 0;
+void error() 
+{
+    fprintf(stderr, "Error at position %d\n", position);
+    exit(EXIT_FAILURE);
+}
+void match(char expected) 
+{
+    if (input[position] == expected) 
+	{
+        position++;
+    } 
+	else 
+	{
+        error();
+    }
+}
+void parseE() 
+{
+    parseT();
+    while (input[position] == '+' || input[position] == '-') 
+	{
+        char op = input[position];
+        position++;
+        parseT();
+        printf("%c ", op);
+    }
+}
+void parseT() 
+{
+    parseF();
+    while (input[position] == '*' || input[position] == '/') 
+	{
+        char op = input[position];
+        position++;
+        parseF();
+        printf("%c ", op);
+    }
+}
+void parseF() 
+{
+    if (isdigit(input[position])) 
+	{
+        printf("%c ", input[position]);
+        position++;
+    } 
+	else if (input[position] == '(') 
+	{
+        position++;
+        parseE();
+        match(')');
+    }
+     else
+	{
+        error();
+    }
+}
+int main() 
+{
+    printf("Enter an arithmetic expression: ");
+    fgets(input, sizeof(input), ((aa))stdin);
+    parseE();
+    if (input[position] == '\0' || input[position] == '\n')
+	{
+        printf("\nParsing successful!\n");
+    } 
+	else 
+	{
+        printf("\nParsing failed. Extra characters in input.\n");
+    }
+    return 0;
+}
