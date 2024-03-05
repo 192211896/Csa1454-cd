@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <string.h>
+#define MAX_RULES 10
+#define MAX_LEN 50
+char nonTerminals[MAX_RULES];
+char productions[MAX_RULES][MAX_LEN];
+char newProductions[MAX_RULES][MAX_LEN];
+int numRules;
+void eliminateLeftRecursion() 
+{
+    for (int i = 0; i < numRules; i++) 
+	{
+        for (int j = 0; j < i; j++) 
+		{
+            if (productions[i][0] == nonTerminals[j]) 
+			{
+                char alpha[MAX_LEN];
+                char beta[MAX_LEN];
+                int alphaIndex = 0, betaIndex = 0;
+                int k = 3; 
+                while (productions[i][k] != '\0' && productions[i][k] != '|') 
+				{
+                    alpha[alphaIndex++] = productions[i][k++];
+                }
+                alpha[alphaIndex] = '\0';
+                if (productions[i][k] == '|')
+				{
+                    k++; 
+                }
+                while (productions[i][k] != '\0') 
+				{
+                    beta[betaIndex++] = productions[i][k++];
+                }
+                beta[betaIndex] = '\0';
+                sprintf(newProductions[i], "%c -> %s%c'", nonTerminals[i], beta, nonTerminals[j]);
+                sprintf(newProductions[numRules], "%c' -> %s%c' | e", nonTerminals[j], alpha, nonTerminals[j]);
+                numRules++;
+            } 
+			else 
+			{
+                strcpy(newProductions[i], productions[i]);
+            }
+        }
+    }
+}
+int main()
+{
+    printf("Enter the number of rules: ");
+    scanf("%d", &numRules);
+    printf("Enter the production rules:\n");
+    for (int i = 0; i < numRules; i++) 
+	{
+        scanf(" %c -> %[^\n]", &nonTerminals[i], productions[i]);
+    }
+    eliminateLeftRecursion();
+    printf("\nGrammar after eliminating left recursion:\n");
+    for (int i = 0; i < numRules; i++) 
+	{
+        printf("%s\n", newProductions[i]);
+    }
+    return 0;
+}
