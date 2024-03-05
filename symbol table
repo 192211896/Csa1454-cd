@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define MAX_SIZE 100
+typedef struct 
+{
+    char* name;
+    int value;
+}
+SymbolEntry;
+typedef struct 
+{
+    SymbolEntry* table[MAX_SIZE];
+} 
+SymbolTable;
+void initializeSymbolTable(SymbolTable* st) 
+{
+    for (int i = 0; i < MAX_SIZE; i++) 
+	{
+        st->table[i] = NULL;
+    }
+}
+int hash(char* name)
+ {
+    int hashValue = 0;
+    for (int i = 0; i < strlen(name); i++) 
+	{
+        hashValue += name[i];
+    }
+    return hashValue % MAX_SIZE;
+}
+void insertSymbol(SymbolTable* st, char* name, int value) 
+{
+    int index = hash(name);
+    while (st->table[index] != NULL) 
+	{
+        index = (index + 1) % MAX_SIZE;
+    }
+    SymbolEntry* newSymbol = (SymbolEntry*)malloc(sizeof(SymbolEntry));
+    newSymbol->name = strdup(name);
+    newSymbol->value = value;
+    st->table[index] = newSymbol;
+}
+SymbolEntry* searchSymbol(SymbolTable* st, char* name) 
+{
+    int index = hash(name);
+    while (st->table[index] != NULL) 
+	{
+        if (strcmp(st->table[index]->name, name) == 0) 
+		{
+            return st->table[index];
+        }
+        index = (index + 1) % MAX_SIZE;
+    }
+    return NULL;
+}
+void displaySymbolTable(SymbolTable* st) 
+{
+    printf("Symbol Table:\n");
+    for (int i = 0; i < MAX_SIZE; i++) 
+	{
+        if (st->table[i] != NULL) 
+		{
+            printf("[%d] %s: %d\n", i, st->table[i]->name, st->table[i]->value);
+        }
+    }
+}
+void freeSymbolTable(SymbolTable* st) 
+{
+    for (int i = 0; i < MAX_SIZE; i++) 
+	{
+        if (st->table[i] != NULL)
+		 {
+            free(st->table[i]->name);
+            free(st->table[i]);
+        }
+    }
+}
+int main() {
+    SymbolTable symbolTable;
+    initializeSymbolTable(&symbolTable);
+    insertSymbol(&symbolTable, "var1", 10);
+    insertSymbol(&symbolTable, "var2", 20);
+    insertSymbol(&symbolTable, "var3", 30);
+    char searchName[] = "var2";
+    SymbolEntry* result = searchSymbol(&symbolTable, searchName);
+    if (result != NULL) 
+	{
+        printf("Symbol found: %s = %d\n", result->name, result->value);
+    } 
+	else 
+	{
+        printf("Symbol not found: %s\n", searchName);
+    }
+    displaySymbolTable(&symbolTable);
+    freeSymbolTable(&symbolTable);
+    return 0;
+}
